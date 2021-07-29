@@ -6,10 +6,8 @@ using System.Threading.Tasks;
 
 namespace Kritner.OrleansGettingStarted.GrainInterfaces
 {
-    public interface IVisitTracker : IGrainWithStringKey, IGrainInterfaceMarker
+    public interface IChatRoom : IGrainWithStringKey, IGrainInterfaceMarker
     {
-        Task<int> GetNumberOfVisits();
-        Task Visit();
         Task<bool> SendMessage(string userName, string chatRoomId, string message);
 
         Task<bool> EnterRoom(string userName, string chatRoomId, string password);

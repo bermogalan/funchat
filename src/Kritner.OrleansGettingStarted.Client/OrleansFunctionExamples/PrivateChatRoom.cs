@@ -11,7 +11,7 @@ using System.Timers;
 
 namespace Kritner.OrleansGettingStarted.Client.OrleansFunctionExamples
 {
-    public class PrivateChatRoom : IOrleansFunction, IObserverSample
+    public class PrivateChatRoom : IOrleansFunction
     {
         private bool _shouldBreakLoop;
         private DateTime _lastMessageRead = DateTime.Now;
@@ -45,7 +45,7 @@ namespace Kritner.OrleansGettingStarted.Client.OrleansFunctionExamples
 
             DisplayOptions();
 
-            var grain = clusterClient.GetGrain<IVisitTracker>("FunChat");
+            var grain = clusterClient.GetGrain<IChatRoom>("FunChat");
             var roomExists = await grain.CreateRoom("Admin", "General", "");
             var enteredGeneralRoom = await grain.EnterRoom(userName, "General", "");
 
@@ -313,7 +313,7 @@ namespace Kritner.OrleansGettingStarted.Client.OrleansFunctionExamples
                 token.ThrowIfCancellationRequested();
 
                 await Task.Delay(TimeSpan.FromSeconds(2));
-                var grain = clusterClient.GetGrain<IVisitTracker>("FunChat");
+                var grain = clusterClient.GetGrain<IChatRoom>("FunChat");
                 var roomMessages = await grain.ReadMessages(userName, chatRoomName);
 
                 foreach (var message in roomMessages)
@@ -326,12 +326,6 @@ namespace Kritner.OrleansGettingStarted.Client.OrleansFunctionExamples
                     }
                 }
             }
-        }
-
-        public void ReceiveMessage(string message)
-        {
-            //ConsoleHelpers.LineSeparator();
-            Console.WriteLine(message);
         }
     }
 }

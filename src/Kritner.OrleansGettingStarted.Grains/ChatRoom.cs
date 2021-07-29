@@ -10,14 +10,14 @@ using Kritner.OrleansGettingStarted.Models;
 namespace Kritner.OrleansGettingStarted.Grains
 {
     [StorageProvider(ProviderName = Constants.OrleansMemoryProvider)]
-    public class VisitTracker : Grain<VisitTrackerState>, IVisitTracker, IGrainMarker
+    public class ChatRoom : Grain<ChatRoomState>, IChatRoom, IGrainMarker
     {
         public async Task<bool> EnterRoom(string userName, string chatRoomId, string password)
         {
             var result = false;
 
             if (State.ChatRooms == null)
-                State.ChatRooms = new List<ChatRoom>();
+                State.ChatRooms = new List<Models.ChatRoom>();
 
             var chatRoom = State.ChatRooms.FirstOrDefault(i => i.RoomId == chatRoomId && i.Password == password);
 
@@ -44,13 +44,13 @@ namespace Kritner.OrleansGettingStarted.Grains
             var result = false;
 
             if (State.ChatRooms == null)
-                State.ChatRooms = new List<ChatRoom>();
+                State.ChatRooms = new List<Models.ChatRoom>();
 
             var chatRoom = State.ChatRooms.FirstOrDefault(i => i.RoomId == chatRoomId);
 
             if (chatRoom == null)
             {
-                chatRoom = new ChatRoom() { RoomId = chatRoomId, Messages = new List<ChatMessage>(), CreatedBy = userName, Password = password, RoomName = $"Private room by {userName} Id : {chatRoomId}", Users = new List<ChatUser>() };
+                chatRoom = new Models.ChatRoom() { RoomId = chatRoomId, Messages = new List<ChatMessage>(), CreatedBy = userName, Password = password, RoomName = $"Private room by {userName} Id : {chatRoomId}", Users = new List<ChatUser>() };
                 //chatRoom.Users.Add(new ChatUser() { RoomId = chatRoomId, UserName = userName, TimeStamp = DateTime.Now });
                 State.ChatRooms.Add(chatRoom);
                 await WriteStateAsync();
@@ -65,7 +65,7 @@ namespace Kritner.OrleansGettingStarted.Grains
         public async Task LeaveRoom(string userName, string chatRoomId)
         {
             if (State.ChatRooms == null)
-                State.ChatRooms = new List<ChatRoom>();
+                State.ChatRooms = new List<Models.ChatRoom>();
 
             var chatRoom = State.ChatRooms.FirstOrDefault(i => i.RoomId == chatRoomId);
 
@@ -87,7 +87,7 @@ namespace Kritner.OrleansGettingStarted.Grains
         public async Task DeleteRoom(string chatRoomId)
         {
             if (State.ChatRooms == null)
-                State.ChatRooms = new List<ChatRoom>();
+                State.ChatRooms = new List<Models.ChatRoom>();
 
             var chatRoom = State.ChatRooms.FirstOrDefault(i => i.RoomId == chatRoomId);
 
@@ -103,7 +103,7 @@ namespace Kritner.OrleansGettingStarted.Grains
             var result = new List<string>();
 
             if (State.ChatRooms == null)
-                State.ChatRooms = new List<ChatRoom>();
+                State.ChatRooms = new List<Models.ChatRoom>();
 
             var chatRoom = State.ChatRooms.FirstOrDefault(i => i.RoomId == chatRoomId);
 
@@ -115,10 +115,6 @@ namespace Kritner.OrleansGettingStarted.Grains
             return Task.FromResult(result);
         }
 
-        public Task<int> GetNumberOfVisits()
-        {
-            return Task.FromResult(State.NumberOfVisits);
-        }
         public async Task<bool> SendMessage(string userName, string chatRoomId, string message)
         {
             var result = AddMessage(userName, chatRoomId, message);
@@ -133,7 +129,7 @@ namespace Kritner.OrleansGettingStarted.Grains
             var result = new List<string>();
 
             if (State.ChatRooms == null)
-                State.ChatRooms = new List<ChatRoom>();
+                State.ChatRooms = new List<Models.ChatRoom>();
 
             var chatRoom = State.ChatRooms.FirstOrDefault(i => i.RoomId == chatRoomId);
 
@@ -193,26 +189,11 @@ namespace Kritner.OrleansGettingStarted.Grains
             return messageAdded;
         }
 
-        public async Task Visit()
-        {
-            var now = DateTime.Now;
-
-            if (!State.FirstVisit.HasValue)
-            {
-                State.FirstVisit = now;
-            }
-
-            State.NumberOfVisits++;
-            State.LastVisit = now;
-
-            await WriteStateAsync();
-        }
-
         public Task<List<string>> GetUsers(string chatRoomId)
         {
             var result = new List<string>();
             if (State.ChatRooms == null)
-                State.ChatRooms = new List<ChatRoom>();
+                State.ChatRooms = new List<Models.ChatRoom>();
 
             var chatRoom = State.ChatRooms.FirstOrDefault(i => i.RoomId == chatRoomId);
 
@@ -224,9 +205,9 @@ namespace Kritner.OrleansGettingStarted.Grains
             return Task.FromResult(result);
         }
 
-        public Task<List<ChatRoom>> GetChatRooms(string userName, bool isAdmin) 
+        public Task<List<Models.ChatRoom>> GetChatRooms(string userName, bool isAdmin) 
         {
-            var result = new List<ChatRoom>();
+            var result = new List<Models.ChatRoom>();
 
             if (isAdmin)
             {
@@ -240,9 +221,9 @@ namespace Kritner.OrleansGettingStarted.Grains
             return Task.FromResult(result);
         }
 
-        public Task<List<ChatRoom>> GetChatRoomsJoined(string userName, bool isAdmin)
+        public Task<List<Models.ChatRoom>> GetChatRoomsJoined(string userName, bool isAdmin)
         {
-            var result = new List<ChatRoom>();
+            var result = new List<Models.ChatRoom>();
 
             if (isAdmin)
             {
@@ -255,20 +236,5 @@ namespace Kritner.OrleansGettingStarted.Grains
 
             return Task.FromResult(result);
         }
-    }
-
-    public class VisitTrackerState
-    {
-        public DateTime? FirstVisit { get; set; }
-        public DateTime? LastVisit { get; set; }
-
-        public Dictionary<string, DateTime> LastMessageRead { get; set; }
-        public int NumberOfVisits { get; set; }
-
-        public Dictionary<DateTime, string> Messages { get; set; }
-
-        public Dictionary<string, DateTime> Users { get; set; }
-
-        public List<ChatRoom> ChatRooms { get; set; }
-    }
+    }    
 }

@@ -15,7 +15,7 @@ namespace Kritner.OrleansGettingStarted.SiloHost.Helpers
         /// <param name="serviceCollection">The service collection in which to register thingers.</param>
         public static void IocContainerRegistration(IServiceCollection serviceCollection)
         {
-            serviceCollection.AddSingleton<IEmailSender, FakeEmailSender>();
+            
         }
     }
 }
