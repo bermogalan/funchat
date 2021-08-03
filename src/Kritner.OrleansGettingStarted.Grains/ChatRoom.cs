@@ -11,7 +11,7 @@ using Kritner.OrleansGettingStarted.Grains.GrainLogic;
 namespace Kritner.OrleansGettingStarted.Grains
 {
     [StorageProvider(ProviderName = Constants.OrleansMemoryProvider)]
-    public class ChatRoom : Grain<ChatRoomState>, IGrainMarker
+    public class ChatRoom : Grain<ChatRoomState>, IChatRoom, IGrainMarker
     {
         private ChatRoomLogic _logic;
 

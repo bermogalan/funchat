@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace Kritner.OrleansGettingStarted.Grains.GrainLogic
 {
-    public class ChatRoomLogic: IChatRoom
+    public class ChatRoomLogic
     {
         private readonly ChatRoomState _state;
         private readonly IGrainFactory _grainFactory;

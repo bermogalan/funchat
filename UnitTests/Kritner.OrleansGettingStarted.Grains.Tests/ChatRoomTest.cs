@@ -1,47 +1,93 @@
 ﻿using Kritner.OrleansGettingStarted.GrainInterfaces;
-using Kritner.OrleansGettingStarted.Grains.Tests.CulsterClass;
-using Kritner.OrleansGettingStarted.Models;
-using Orleans;
-using System;
-using System.Collections.Generic;
+using Orleans.TestKit;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 using Xunit;
 
 namespace Kritner.OrleansGettingStarted.Grains.Test
 {
-    [Collection(nameof(ClusterCollection))]
-    public class ChatRoomTest
-    {
-        private readonly Fixture fixture;
-
-        public ChatRoomTest(Fixture fixture)
-        {
-            this.fixture = fixture;
-        }
+    public class ChatRoomTest : TestKitBase
+    {        
 
         [Fact]
-        public async Task Saves_State()
+        public async Task ChatRoomCreateRoomTest() 
         {
+            IChatRoom grain = await Silo.CreateGrainAsync<ChatRoom>("id");
+
             // get a brand new grain to test
-            var grain = new Fixture();
             var userName = "test";
             var chatRoomId = "id";
             var chatRoomPassword = "pass";
 
-            // set its value to something we can check
-            await grain.Sut.EnterRoom(userName, chatRoomId, chatRoomPassword);
+            var result = await grain.CreateRoom(userName, chatRoomId, chatRoomPassword);
 
-            // assert that state was saved by one of the silos
-            grain.VerifyEnterRoomCalledWithParams(userName, chatRoomId, chatRoomPassword);
-            
-            // assert that state is of the corect type
-            //var obj = state.State as ChatRoomState;
-            //Assert.NotNull(obj);
+            Assert.True(result);
+        }
 
-            // assert that state has the correct value
-            //Assert.NotNull(obj.ChatRooms);
+        [Fact]
+        public async Task ChatRoomEnterRoomNotExistingTest()
+        {
+            IChatRoom grain = await Silo.CreateGrainAsync<ChatRoom>("id");
+
+            // get a brand new grain to test
+            var userName = "test";
+            var chatRoomId = "id";
+            var chatRoomPassword = "pass";
+
+            var result = await grain.EnterRoom(userName, chatRoomId, chatRoomPassword);
+
+            Assert.False(result);
+        }
+
+        [Fact]
+        public async Task ChatRoomEnterRoomExistingTest()
+        {
+            IChatRoom grain = await Silo.CreateGrainAsync<ChatRoom>("id");
+
+            // get a brand new grain to test
+            var userName = "test";
+            var chatRoomId = "id";
+            var chatRoomPassword = "pass";
+
+            var roomCreated = await grain.CreateRoom(userName, chatRoomId, chatRoomPassword);
+            var result = await grain.EnterRoom(userName, chatRoomId, chatRoomPassword);
+
+            Assert.True(result);
+        }
+
+        [Fact]
+        public async Task ChatRoomEnterRoomPasswordIncorrectTest()
+        {
+            IChatRoom grain = await Silo.CreateGrainAsync<ChatRoom>("id");
+
+            // get a brand new grain to test
+            var userName = "test";
+            var chatRoomId = "id";
+            var chatRoomPassword = "pass";
+            var chatRoomIncorrectPassword = "pass1";
+
+            var roomCreated = await grain.CreateRoom(userName, chatRoomId, chatRoomPassword);
+            var result = await grain.EnterRoom(userName, chatRoomId, chatRoomIncorrectPassword);
+
+            Assert.False(result);
+        }
+
+        [Fact]
+        public async Task ChatRoomDeleteRoomTest()
+        {
+            IChatRoom grain = await Silo.CreateGrainAsync<ChatRoom>("id");
+
+            // get a brand new grain to test
+            var userName = "test";
+            var chatRoomId = "id";
+            var chatRoomPassword = "pass";
+
+            var roomCreated = await grain.CreateRoom(userName, chatRoomId, chatRoomPassword);
+            var rooms = await grain.GetChatRooms(userName, false);
+            await grain.DeleteRoom(chatRoomId);
+            var roomsAfterDelete = await grain.GetChatRooms(userName, false);
+
+            Assert.Null(roomsAfterDelete.FirstOrDefault(r => r.RoomId == chatRoomId));
         }
     }
 }
