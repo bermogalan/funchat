@@ -182,6 +182,33 @@ namespace Kritner.OrleansGettingStarted.Grains.GrainLogic
             return result;
         }
 
+        public Task<List<string>> ReadMessagesFromDate(string userName, string chatRoomId, DateTime dateTimeSince)
+        {
+            var result = new List<string>();
+
+            if (_state.ChatRooms == null)
+                _state.ChatRooms = new List<Models.ChatRoom>();
+
+            var chatRoom = _state.ChatRooms.FirstOrDefault(i => i.RoomId == chatRoomId);
+
+            if (chatRoom != null)
+            {
+                var chatUser = chatRoom.Users.FirstOrDefault(i => i.UserName == userName);
+
+                if (chatUser != null)
+                {
+                    var messagesFiltered = chatRoom.Messages.Where(i => i.TimeStamp > dateTimeSince).ToList();
+
+                    if (messagesFiltered.Count > 0)
+                    {
+                        result = messagesFiltered.OrderBy(i => i.TimeStamp).Select(i => $"{i.TimeStamp} {i.UserName}: {i.Message}").ToList();
+                    }
+                }
+            }
+
+            return Task.FromResult(result);
+        }
+
         private bool AddMessage(string userName, string chatRoomId, string message)
         {
             var messageAdded = false;

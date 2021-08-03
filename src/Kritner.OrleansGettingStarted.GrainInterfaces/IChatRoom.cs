@@ -22,6 +22,8 @@ namespace Kritner.OrleansGettingStarted.GrainInterfaces
 
         Task<List<string>> ReadMessages(string userName, string chatRoomId);
 
+        Task<List<string>> ReadMessagesFromDate(string userName, string chatRoomId, DateTime dateTimeSince);
+
         Task<List<string>> GetUsers(string chatRoomId);
 
         Task<List<ChatRoom>> GetChatRooms(string userName, bool isAdmin);

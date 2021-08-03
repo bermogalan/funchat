@@ -39,6 +39,8 @@ namespace Kritner.OrleansGettingStarted.Grains
 
         public Task<List<string>> ReadMessages(string userName, string chatRoomId) => _logic.ReadMessages(userName, chatRoomId);
 
+        public Task<List<string>> ReadMessagesFromDate(string userName, string chatRoomId, DateTime dateTimeSince) => _logic.ReadMessagesFromDate(userName, chatRoomId, dateTimeSince);
+
         public Task<List<string>> GetUsers(string chatRoomId) => _logic.GetUsers(chatRoomId);
 
         public Task<List<Models.ChatRoom>> GetChatRooms(string userName, bool isAdmin) => _logic.GetChatRooms(userName, isAdmin);
