@@ -1,4 +1,5 @@
 ﻿using Kritner.OrleansGettingStarted.GrainInterfaces;
+using Kritner.OrleansGettingStarted.Grains.Tests.CulsterClass;
 using Kritner.OrleansGettingStarted.Models;
 using Orleans;
 using System;
@@ -13,9 +14,9 @@ namespace Kritner.OrleansGettingStarted.Grains.Test
     [Collection(nameof(ClusterCollection))]
     public class ChatRoomTest
     {
-        private readonly ClusterFixture fixture;
+        private readonly Fixture fixture;
 
-        public ChatRoomTest(ClusterFixture fixture)
+        public ChatRoomTest(Fixture fixture)
         {
             this.fixture = fixture;
         }
@@ -24,15 +25,17 @@ namespace Kritner.OrleansGettingStarted.Grains.Test
         public async Task Saves_State()
         {
             // get a brand new grain to test
-            var grain = fixture.Cluster.GrainFactory.GetGrain<IChatRoom>("");
+            var grain = new Fixture();
+            var userName = "test";
+            var chatRoomId = "id";
+            var chatRoomPassword = "pass";
 
             // set its value to something we can check
-            await grain.CreateRoom("", "", "");
+            await grain.Sut.EnterRoom(userName, chatRoomId, chatRoomPassword);
 
             // assert that state was saved by one of the silos
-            var state = fixture.GetChatRoome(typeof(IChatRoom), "State", grain);
-            Assert.NotNull(state);
-
+            grain.VerifyEnterRoomCalledWithParams(userName, chatRoomId, chatRoomPassword);
+            
             // assert that state is of the corect type
             //var obj = state.State as ChatRoomState;
             //Assert.NotNull(obj);

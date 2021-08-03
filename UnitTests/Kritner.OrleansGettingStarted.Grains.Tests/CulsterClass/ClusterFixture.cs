@@ -1,4 +1,5 @@
 ﻿using Kritner.OrleansGettingStarted.GrainInterfaces;
+using Kritner.OrleansGettingStarted.Grains.GrainLogic;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Orleans;
@@ -28,7 +29,7 @@ namespace Kritner.OrleansGettingStarted.Grains.Test
         /// </summary>
         public TestCluster Cluster { get; }
 
-        public static ConcurrentDictionary<string, ConcurrentBag<ChatRoom>> ChatRoomGroups { get; } = new ConcurrentDictionary<string, ConcurrentBag<ChatRoom>>();
+        public static ConcurrentDictionary<string, ConcurrentBag<ChatRoomLogic>> ChatRoomGroups { get; } = new ConcurrentDictionary<string, ConcurrentBag<ChatRoomLogic>>();
 
         public IChatRoom GetChatRoome(Type implementationType, string name, IGrain grain)
         {
@@ -89,7 +90,7 @@ namespace Kritner.OrleansGettingStarted.Grains.Test
         public ClusterFixture()
         {
             // prepare to receive the fake services from individual silos
-            ChatRoomGroups[TestClusterId] = new ConcurrentBag<ChatRoom>();
+            ChatRoomGroups[TestClusterId] = new ConcurrentBag<ChatRoomLogic>();
             GrainStorageGroups[TestClusterId] = new ConcurrentBag<FakeGrainStorage>();
             TimerRegistryGroups[TestClusterId] = new ConcurrentBag<FakeTimerRegistry>();
             ReminderRegistryGroups[TestClusterId] = new ConcurrentBag<FakeReminderRegistry>();
@@ -123,7 +124,7 @@ namespace Kritner.OrleansGettingStarted.Grains.Test
                 hostBuilder.ConfigureServices(services =>
                 {
                     services.AddSingleton(_ => new ChatRoom());
-                    services.AddSingleton<IChatRoom>(_ => _.GetService<ChatRoom>());
+                    services.AddSingleton<IChatRoom>(_ => _.GetService<ChatRoomLogic>());
 
                     // add the fake storage provider as default in a way that lets us extract it afterwards
                     services.AddSingleton(_ => new FakeGrainStorage());
@@ -147,7 +148,7 @@ namespace Kritner.OrleansGettingStarted.Grains.Test
                     var clusterId = config[nameof(TestClusterId)];
 
                     // extract the fake services from the silo so unit tests can access them
-                    ChatRoomGroups[clusterId].Add(provider.GetService<ChatRoom>());
+                    ChatRoomGroups[clusterId].Add(provider.GetService<ChatRoomLogic>());
                     GrainStorageGroups[clusterId].Add(provider.GetService<FakeGrainStorage>());
                     TimerRegistryGroups[clusterId].Add(provider.GetService<FakeTimerRegistry>());
                     ReminderRegistryGroups[clusterId].Add(provider.GetService<FakeReminderRegistry>());
